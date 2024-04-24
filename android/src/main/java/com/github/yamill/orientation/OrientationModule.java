@@ -19,6 +19,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import android.os.Build;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -150,7 +151,11 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
             FLog.e(ReactConstants.TAG, "no activity to register receiver");
             return;
         }
+        if(Build.VERSION.SDK_INT >= 34 ){
+        activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"),activity.RECEIVER_NOT_EXPORTED);
+        }else{
         activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
+        }
     }
     @Override
     public void onHostPause() {
