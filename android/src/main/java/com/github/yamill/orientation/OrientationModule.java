@@ -8,6 +8,9 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
+import android.view.WindowManager;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.Arguments;
@@ -68,6 +71,26 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
             callback.invoke(orientationInt, null);
         } else {
             callback.invoke(null, orientation);
+        }
+    }
+
+    @ReactMethod
+    private void getCurrentOrientation(Callback callback) {
+        final Display display = ((WindowManager) getReactApplicationContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+        switch (display.getRotation()) {
+            case Surface.ROTATION_0:
+                callback.invoke(null, "portrait");
+                break;
+            case Surface.ROTATION_90:
+                callback.invoke(null, "landscape-left");
+                break;
+            case Surface.ROTATION_180:
+                callback.invoke(null, "portrait-upside-down");
+                break;
+            case Surface.ROTATION_270:
+                callback.invoke(null, "landscape-right");
+                break;
         }
     }
 
@@ -157,15 +180,14 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
         }
     }
+    
     @Override
     public void onHostPause() {
         final Activity activity = getCurrentActivity();
         if (activity == null) return;
-        try
-        {
+        try {
             activity.unregisterReceiver(receiver);
-        }
-        catch (java.lang.IllegalArgumentException e) {
+        } catch (java.lang.IllegalArgumentException e) {
             FLog.e(ReactConstants.TAG, "receiver already unregistered", e);
         }
     }
